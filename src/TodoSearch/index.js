@@ -5,7 +5,6 @@ function TodoSearch() {
     const [searchValue, setSearchValue] = React.useState('');
 
     const onSearchValueChange = (event) => {
-        console.log(event.target.value);
         setSearchValue(event.target.value);
     }
 
