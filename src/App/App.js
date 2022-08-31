@@ -7,7 +7,7 @@ import { CreateTodoButton } from "../CreateTodoButton";
 
 
 const harCodetodos = [
-    { text: "cortar cebolla", completed: true},
+    { text: "cortar cebolla", completed: false},
     { text: "tomar curos de react", completed: false},
     { text: "llorar con la llorona", completed: false}
 ];
@@ -17,9 +17,11 @@ function App() {
     const [searchValue, setSearchValue] = React.useState('');
     const [todos, setTodos] = React.useState(harCodetodos);
     //variables
+    //para el contador - camtidad de completados y de totales todos
     const completedTodos = todos.filter(todo => !!todo.completed).length;
     const totalTodos = todos.length;
 
+    //para el filtro 
     let searchedTodos = []
 
     if (!searchValue.length >= 1) {
@@ -33,11 +35,28 @@ function App() {
         })
     }
 
+    //para completar
+    const completeTodo = (text) => {
+        const todoIndex = todos.findIndex(todo => todo.text === text);
+        const newTodo = [...todos];
+        newTodo[todoIndex].completed = true;
+        setTodos(newTodo);
+    };
+
+    //para eliminar
+    const deleteTodo = (text) => {
+        const todoIndex = todos.findIndex(todo => todo.text === text);
+        const newTodo = [...todos];
+        newTodo.splice(todoIndex, 1);
+        setTodos(newTodo);
+    };
+
+
     return (
         <React.Fragment>
             <TodoCounter
-            total={totalTodos}
-            completed={completedTodos}
+            totalTodos={totalTodos}
+            completedTodos={completedTodos}
             />
 
             <TodoSearch
@@ -51,6 +70,8 @@ function App() {
                 key={todo.text} 
                 text={todo.text}
                 completed={todo.completed}
+                onComplete={() => completeTodo(todo.text)}
+                onDelete={() => deleteTodo(todo.text)}
                 />
             ))}
             </TodoList>
