@@ -8,20 +8,36 @@ import { AppUI } from "./AppUI";
 //     { text: "llorar con la llorona", completed: false}
 // ];
 
-function App() {
-    const localStorageTodos = localStorage.getItem('TODOS_V0.1');
-    let parsedTodos;
+function useLocalStorage (itemName, initialValue) {
+    const localStorageItems = localStorage.getItem(itemName);
+    let parsedItems;
 
-    if(!localStorageTodos) {
-        localStorage.setItem('TODOS_V0.1', JSON.stringify([]));
-        parsedTodos = [];
+    if(!localStorageItems) {
+        localStorage.setItem(itemName, JSON.stringify(initialValue));
+        parsedItems = initialValue;
     } else {
-        parsedTodos = JSON.parse(localStorageTodos)
+        parsedItems = JSON.parse(localStorageItems)
     };
 
+    const [item, setItem] = React.useState(parsedItems);
+
+    const saveItems = (newItem) => {
+        const stringifiedItem = JSON.stringify(newItem);
+        localStorage.setItem(itemName, stringifiedItem);
+        setItem(newItem);
+    };
+
+    return [
+        item,
+        saveItems
+    ]
+
+};
+
+function App() {
     //state
+    const [todos, saveTodos] = useLocalStorage('TODOS_V0.1', [])
     const [searchValue, setSearchValue] = React.useState('');
-    const [todos, setTodos] = React.useState(parsedTodos);
     //variables
     //para el contador - camtidad de completados y de totales todos
     const completedTodos = todos.filter(todo => !!todo.completed).length;
@@ -40,12 +56,6 @@ function App() {
             return todoText.includes(searchText);
         })
     }
-
-    const saveTodos = (newTodos) => {
-        const stringifiedTodos = JSON.stringify(newTodos);
-        localStorage.setItem('TODOS_V0.1', stringifiedTodos);
-        setTodos(newTodos);
-    };
 
     //para completar
     const completeTodo = (text) => {
