@@ -9,17 +9,32 @@ import { AppUI } from "./AppUI";
 // ];
 
 function useLocalStorage (itemName, initialValue) {
-    const localStorageItems = localStorage.getItem(itemName);
-    let parsedItems;
 
-    if(!localStorageItems) {
-        localStorage.setItem(itemName, JSON.stringify(initialValue));
-        parsedItems = initialValue;
-    } else {
-        parsedItems = JSON.parse(localStorageItems)
-    };
+    const [error, setError] = React.useState
+    const [loading, setLoading] = React.useState(true);
+    const [item, setItem] = React.useState(initialValue);
 
-    const [item, setItem] = React.useState(parsedItems);
+    React.useEffect(() => {
+        setTimeout(() => {
+            try {
+                const localStorageItems = localStorage.getItem(itemName);
+                let parsedItems;
+        
+                if(!localStorageItems) {
+                    localStorage.setItem(itemName, JSON.stringify(initialValue));
+                    parsedItems = initialValue;
+                } else {
+                    parsedItems = JSON.parse(localStorageItems)
+                };
+
+                setItem(parsedItems);
+                setLoading(false);
+            }catch(error){
+                setError(error);
+            };
+
+        }, 2000);
+    })
 
     const saveItems = (newItem) => {
         const stringifiedItem = JSON.stringify(newItem);
@@ -27,16 +42,23 @@ function useLocalStorage (itemName, initialValue) {
         setItem(newItem);
     };
 
-    return [
+    return {
         item,
-        saveItems
-    ]
+        saveItems,
+        loading,
+        error
+    };
 
 };
 
 function App() {
     //state
-    const [todos, saveTodos] = useLocalStorage('TODOS_V0.1', [])
+    const {
+        item: todos,
+        saveItems: saveTodos,
+        loading,
+        error
+    } = useLocalStorage('TODOS_V0.1', [])
     const [searchValue, setSearchValue] = React.useState('');
     //variables
     //para el contador - camtidad de completados y de totales todos
@@ -73,9 +95,19 @@ function App() {
         saveTodos(newTodo);
     };
 
+    // console.log('render(antes del use effect)');
+
+    // React.useEffect(() => {
+    //     console.log('use effect')
+    // });
+
+    // console.log('render (despues del use effect)');
+
 
     return (
       <AppUI 
+      error={error}
+      loading={loading}
       totalTodos={totalTodos}
       completedTodos={completedTodos}
       searchValue={searchValue}
